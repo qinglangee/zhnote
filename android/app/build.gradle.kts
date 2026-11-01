@@ -36,6 +36,23 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.forEach { output ->
+                val impl =
+                    output as com.android.build.api.variant.impl.VariantOutputImpl
+                impl.outputFileName.set(
+                    impl.outputFileName
+                        .get()
+                        .replaceFirst(
+                            "app",
+                            "zhnote-${output.versionName.get()}",
+                        ),
+                )
+            }
+        }
+    }
 }
 
 kotlin {
