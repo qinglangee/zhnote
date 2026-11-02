@@ -61,12 +61,12 @@ class FloatingBallService {
     }
   }
 
-  /// 设置悬浮球不透明度（0.3 - 1.0）。
+  /// 设置悬浮球不透明度（0.05 - 1.0）。
   Future<void> setOpacity(double opacity) async {
     if (!_supported) {
       return;
     }
-    final double value = opacity.clamp(0.3, 1.0).toDouble();
+    final double value = opacity.clamp(0.05, 1.0).toDouble();
     try {
       await _channel.invokeMethod<void>(
         'setOpacity',
@@ -79,12 +79,12 @@ class FloatingBallService {
     }
   }
 
-  /// 设置悬浮球大小（逻辑像素 / DP，40 - 96）。
+  /// 设置悬浮球大小（逻辑像素 / DP，5 - 96）。
   Future<void> setSize(double size) async {
     if (!_supported) {
       return;
     }
-    final double value = size.clamp(40.0, 96.0).toDouble();
+    final double value = size.clamp(5.0, 96.0).toDouble();
     try {
       await _channel.invokeMethod<void>(
         'setSize',

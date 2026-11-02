@@ -23,10 +23,10 @@ class FloatingBallView(context: Context) : View(context) {
     var sizePx: Int = (64 * density).toInt()
         private set
 
-    /** 更新悬浮球大小（DP，40 - 96）。 */
+    /** 更新悬浮球大小（DP，5 - 96）。 */
     fun updateSize(sizeDp: Int) {
-        val clamped = sizeDp.coerceIn(40, 96)
-        val newSize = (clamped * density).toInt()
+        val clamped = sizeDp.coerceIn(5, 96)
+        val newSize = (clamped * density).toInt().coerceAtLeast(4)
         if (newSize == sizePx) {
             return
         }

@@ -65,7 +65,7 @@ object FloatingBallManager {
             gravity = Gravity.TOP or Gravity.START
             this.x = x
             this.y = y
-            alpha = prefs.getFloat(KEY_OPACITY, 1.0f).coerceIn(0.3f, 1.0f)
+            alpha = prefs.getFloat(KEY_OPACITY, 1.0f).coerceIn(0.05f, 1.0f)
         }
 
         view.onClick = { openApp(appContext) }
@@ -98,7 +98,7 @@ object FloatingBallManager {
 
     fun setOpacity(context: Context, opacity: Float) {
         val appContext = context.applicationContext
-        val value = opacity.coerceIn(0.3f, 1.0f)
+        val value = opacity.coerceIn(0.05f, 1.0f)
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putFloat(KEY_OPACITY, value)
@@ -118,7 +118,7 @@ object FloatingBallManager {
 
     fun setSize(context: Context, sizeDp: Int) {
         val appContext = context.applicationContext
-        val value = sizeDp.coerceIn(40, 96)
+        val value = sizeDp.coerceIn(5, 96)
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putInt(KEY_SIZE, value)

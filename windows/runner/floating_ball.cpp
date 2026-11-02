@@ -80,7 +80,7 @@ void FloatingBall::Show(HWND main_window, ClickHandler on_click) {
 }
 
 void FloatingBall::SetOpacity(double opacity) {
-  opacity_ = Clamp01(opacity);
+  opacity_ = std::max(0.05, std::min(1.0, opacity));
   if (!window_ || !bitmap_) {
     return;
   }
@@ -89,7 +89,7 @@ void FloatingBall::SetOpacity(double opacity) {
 }
 
 void FloatingBall::SetSize(int logical_size) {
-  const int clamped = std::max(40, std::min(96, logical_size));
+  const int clamped = std::max(5, std::min(96, logical_size));
   if (clamped == size_logical_) {
     return;
   }
@@ -99,8 +99,8 @@ void FloatingBall::SetSize(int logical_size) {
   }
 
   size_px_ = MulDiv(size_logical_, SystemDpi(), 96);
-  if (size_px_ < 24) {
-    size_px_ = 24;
+  if (size_px_ < 4) {
+    size_px_ = 4;
   }
   if (bitmap_) {
     DeleteObject(bitmap_);
@@ -165,8 +165,8 @@ void FloatingBall::CreateWindowIfNeeded() {
 
   const int dpi = SystemDpi();
   size_px_ = MulDiv(size_logical_, dpi, 96);
-  if (size_px_ < 32) {
-    size_px_ = 32;
+  if (size_px_ < 4) {
+    size_px_ = 4;
   }
 
   int x = 0;

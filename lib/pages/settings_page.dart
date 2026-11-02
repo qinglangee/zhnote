@@ -209,9 +209,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Slider(
                     value: _opacity,
-                    min: 0.3,
+                    min: 0.05,
                     max: 1.0,
-                    divisions: 14,
+                    divisions: 19,
                     label: '${(_opacity * 100).round()}%',
                     onChanged: _showFloatingBall
                         ? (double value) {
@@ -241,9 +241,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Slider(
                     value: _size,
-                    min: 40.0,
+                    min: 5.0,
                     max: 96.0,
-                    divisions: 14,
+                    divisions: 91,
                     label: '${_size.round()}',
                     onChanged: _showFloatingBall
                         ? (double value) {

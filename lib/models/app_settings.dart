@@ -11,10 +11,10 @@ class AppSettings {
   /// 是否显示悬浮球。
   final bool showFloatingBall;
 
-  /// 悬浮球不透明度，取值 0.3 - 1.0。
+  /// 悬浮球不透明度，取值 0.05 - 1.0。
   final double floatingBallOpacity;
 
-  /// 悬浮球大小（逻辑像素/DP），取值 40 - 96。
+  /// 悬浮球大小（逻辑像素/DP），取值 5 - 96。
   final double floatingBallSize;
 
   /// 笔记 txt 文件的绝对路径。
