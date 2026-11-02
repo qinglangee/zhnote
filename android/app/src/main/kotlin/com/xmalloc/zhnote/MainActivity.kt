@@ -1,4 +1,4 @@
-package com.example.zhnote
+package com.xmalloc.zhnote
 
 import android.Manifest
 import android.app.Activity

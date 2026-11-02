@@ -1,4 +1,4 @@
-package com.example.zhnote
+package com.xmalloc.zhnote
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -18,8 +18,8 @@ class FloatingBallService : Service() {
     companion object {
         private const val CHANNEL_ID = "zhnote_floating_ball"
         private const val NOTIFICATION_ID = 1001
-        private const val ACTION_SHOW = "com.example.zhnote.action.SHOW_BALL"
-        private const val ACTION_HIDE = "com.example.zhnote.action.HIDE_BALL"
+        private const val ACTION_SHOW = "com.xmalloc.zhnote.action.SHOW_BALL"
+        private const val ACTION_HIDE = "com.xmalloc.zhnote.action.HIDE_BALL"
 
         fun start(context: Context) {
             val intent = Intent(context, FloatingBallService::class.java).setAction(ACTION_SHOW)
