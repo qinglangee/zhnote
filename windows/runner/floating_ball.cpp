@@ -66,8 +66,9 @@ FloatingBall& FloatingBall::Instance() {
   return instance;
 }
 
-void FloatingBall::Show(HWND main_window) {
+void FloatingBall::Show(HWND main_window, ClickHandler on_click) {
   main_window_ = main_window;
+  on_click_ = on_click;
   CreateWindowIfNeeded();
   if (!window_) {
     return;
@@ -379,6 +380,8 @@ void FloatingBall::OnLeftButtonUp() {
   ReleaseCapture();
   if (moved_) {
     SavePosition();
+  } else if (on_click_) {
+    on_click_();
   } else {
     ActivateMainWindow();
   }

@@ -27,6 +27,7 @@ class FlutterWindow : public Win32Window {
 
  private:
   void ShowMainWindow();
+  void OpenMainPage();
   void OpenSettingsFromTray();
   void QuitApplication();
 

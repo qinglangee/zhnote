@@ -4,14 +4,17 @@
 #include <windows.h>
 
 #include <cstdint>
+#include <functional>
 
 // Windows 平台上的悬浮球：置顶、无边框、可拖动、点击回到主窗口。
 class FloatingBall {
  public:
+  using ClickHandler = std::function<void()>;
+
   static FloatingBall& Instance();
 
-  // 显示悬浮球；main_window 用于点击后恢复主窗口。
-  void Show(HWND main_window);
+  // 显示悬浮球；main_window 用于点击后恢复主窗口，on_click 为点击回调。
+  void Show(HWND main_window, ClickHandler on_click);
 
   // 隐藏悬浮球（保留窗口资源以便再次显示）。
   void Hide();
@@ -48,6 +51,7 @@ class FloatingBall {
 
   HWND window_ = nullptr;
   HWND main_window_ = nullptr;
+  ClickHandler on_click_;
   int size_px_ = 0;
   HBITMAP bitmap_ = nullptr;
   uint32_t* pixels_ = nullptr;

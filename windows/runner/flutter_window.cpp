@@ -41,7 +41,8 @@ bool FlutterWindow::OnCreate() {
                  result) {
         const std::string& method = call.method_name();
         if (method == "show") {
-          FloatingBall::Instance().Show(GetHandle());
+          FloatingBall::Instance().Show(GetHandle(),
+                                        [this]() { OpenMainPage(); });
           result->Success();
         } else if (method == "hide") {
           FloatingBall::Instance().Hide();
@@ -60,7 +61,7 @@ bool FlutterWindow::OnCreate() {
           &flutter::StandardMethodCodec::GetInstance());
 
   tray_icon_.Create(
-      GetHandle(), [this]() { ShowMainWindow(); },
+      GetHandle(), [this]() { OpenMainPage(); },
       [this]() { OpenSettingsFromTray(); }, [this]() { QuitApplication(); });
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -98,6 +99,13 @@ void FlutterWindow::ShowMainWindow() {
   }
   ShowWindow(window, SW_SHOW);
   SetForegroundWindow(window);
+}
+
+void FlutterWindow::OpenMainPage() {
+  ShowMainWindow();
+  if (desktop_channel_) {
+    desktop_channel_->InvokeMethod("openMain", nullptr);
+  }
 }
 
 void FlutterWindow::OpenSettingsFromTray() {

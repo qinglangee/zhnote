@@ -47,9 +47,19 @@ class _NotePageState extends State<NotePage> {
     super.dispose();
   }
 
-  /// 处理 Windows 托盘菜单发起的动作。
+  /// 处理 Windows 托盘菜单与悬浮球点击发起的动作。
   Future<void> _handleDesktopAction(MethodCall call) async {
-    if (call.method == 'openSettings' && mounted) {
+    if (!mounted) {
+      return;
+    }
+    if (call.method == 'openMain') {
+      // 已进入设置页等子页面时，回到首页笔记页。
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else if (call.method == 'openSettings') {
+      // 已在设置页时不再重复打开。
+      if (Navigator.of(context).canPop()) {
+        return;
+      }
       await _openSettings();
     }
   }
