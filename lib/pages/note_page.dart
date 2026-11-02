@@ -7,6 +7,7 @@ import '../services/note_service.dart';
 import '../services/settings_service.dart';
 import '../utils/date_utils.dart';
 import 'settings_page.dart';
+import 'view_notes_page.dart';
 
 class NotePage extends StatefulWidget {
   const NotePage({super.key});
@@ -90,6 +91,19 @@ class _NotePageState extends State<NotePage> {
   Future<void> _openSettings() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (BuildContext context) => const SettingsPage()),
+    );
+  }
+
+  Future<void> _openViewNotes() async {
+    if (settingsService.settings.noteFilePath.trim().isEmpty) {
+      await _promptSetup('还没有设置笔记文件位置，请先在设置中设置笔记文件位置。');
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (BuildContext context) => const ViewNotesPage()),
     );
   }
 
@@ -200,6 +214,11 @@ class _NotePageState extends State<NotePage> {
       appBar: AppBar(
         title: const Text('记笔记'),
         actions: <Widget>[
+          IconButton(
+            tooltip: '查看笔记',
+            icon: const Icon(Icons.visibility_outlined),
+            onPressed: _openViewNotes,
+          ),
           IconButton(
             tooltip: '设置',
             icon: const Icon(Icons.settings_outlined),

@@ -20,6 +20,25 @@ class NoteService {
 
   static final RegExp _headerPattern = RegExp(r'^\*\*\* (\d{4}-\d{2}-\d{2}) ');
 
+  /// 读取整个笔记文件内容；文件还不存在时返回空字符串。
+  Future<String> readNoteText(AppSettings settings) async {
+    final String path = settings.noteFilePath.trim();
+    if (path.isEmpty) {
+      throw const NoteSaveException('还没有设置笔记文件位置，请先在设置中设置笔记文件位置。');
+    }
+    final File file = File(path);
+    if (!await file.exists()) {
+      return '';
+    }
+    try {
+      return await file.readAsString(encoding: utf8);
+    } on FileSystemException catch (error) {
+      throw NoteSaveException('读取笔记文件失败：${error.message}');
+    } on FormatException {
+      throw const NoteSaveException('笔记文件不是有效的 UTF-8 文本。');
+    }
+  }
+
   /// 把一条笔记追加到 [date] 对应的日期块中。
   ///
   /// 若日期块不存在，则新建一个完整的日期块，并按日期顺序插入到已有块之间；
