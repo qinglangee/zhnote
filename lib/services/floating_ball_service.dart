@@ -78,6 +78,24 @@ class FloatingBallService {
       debugPrint('当前平台未实现悬浮球透明度');
     }
   }
+
+  /// 设置悬浮球大小（逻辑像素 / DP，40 - 96）。
+  Future<void> setSize(double size) async {
+    if (!_supported) {
+      return;
+    }
+    final double value = size.clamp(40.0, 96.0).toDouble();
+    try {
+      await _channel.invokeMethod<void>(
+        'setSize',
+        <String, double>{'size': value},
+      );
+    } on PlatformException catch (error) {
+      debugPrint('设置悬浮球大小失败：${error.message}');
+    } on MissingPluginException {
+      debugPrint('当前平台未实现悬浮球大小');
+    }
+  }
 }
 
 final FloatingBallService floatingBallService = FloatingBallService();

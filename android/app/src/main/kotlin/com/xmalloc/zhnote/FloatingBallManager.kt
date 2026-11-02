@@ -17,6 +17,7 @@ object FloatingBallManager {
     private const val KEY_X = "position_x"
     private const val KEY_Y = "position_y"
     private const val KEY_OPACITY = "opacity"
+    private const val KEY_SIZE = "size_dp"
     private const val DEFAULT_MARGIN_DP = 16
 
     private var ballView: FloatingBallView? = null
@@ -37,11 +38,12 @@ object FloatingBallManager {
 
         val windowManager =
             appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val view = FloatingBallView(appContext)
+        view.updateSize(prefs.getInt(KEY_SIZE, 64))
         val size = view.sizePx
         val metrics = appContext.resources.displayMetrics
         val margin = (DEFAULT_MARGIN_DP * appContext.resources.displayMetrics.density).toInt()
-        val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         val x = prefs.getInt(KEY_X, metrics.widthPixels - size - margin)
             .coerceIn(0, metrics.widthPixels - size)
@@ -105,6 +107,37 @@ object FloatingBallManager {
         val view = ballView ?: return
         val params = view.layoutParams as? WindowManager.LayoutParams ?: return
         params.alpha = value
+        val windowManager =
+            view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        try {
+            windowManager.updateViewLayout(view, params)
+        } catch (error: Exception) {
+            // 窗口已被移除时忽略。
+        }
+    }
+
+    fun setSize(context: Context, sizeDp: Int) {
+        val appContext = context.applicationContext
+        val value = sizeDp.coerceIn(40, 96)
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(KEY_SIZE, value)
+            .apply()
+
+        val view = ballView ?: return
+        view.updateSize(value)
+        val params = view.layoutParams as? WindowManager.LayoutParams ?: return
+        params.width = view.sizePx
+        params.height = view.sizePx
+        val metrics = appContext.resources.displayMetrics
+        params.x = params.x.coerceIn(
+            0,
+            (metrics.widthPixels - view.sizePx).coerceAtLeast(0),
+        )
+        params.y = params.y.coerceIn(
+            0,
+            (metrics.heightPixels - view.sizePx).coerceAtLeast(0),
+        )
         val windowManager =
             view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         try {

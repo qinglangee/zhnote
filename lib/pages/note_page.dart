@@ -58,10 +58,11 @@ class _NotePageState extends State<NotePage> with WidgetsBindingObserver {
     }
   }
 
-  /// 按当前设置应用悬浮球的显示状态与透明度。
+  /// 按当前设置应用悬浮球的显示状态、大小与透明度。
   void _applyFloatingBallSettings() {
     final AppSettings settings = settingsService.settings;
     floatingBallService.setVisible(settings.showFloatingBall);
+    floatingBallService.setSize(settings.floatingBallSize);
     floatingBallService.setOpacity(settings.floatingBallOpacity);
   }
 

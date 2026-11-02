@@ -8,7 +8,6 @@
 
 namespace {
 
-constexpr int kLogicalSize = 64;
 constexpr int kDragThreshold = 4;
 constexpr wchar_t kWindowClassName[] = L"ZhNoteFloatingBall";
 
@@ -89,6 +88,36 @@ void FloatingBall::SetOpacity(double opacity) {
   ApplyBitmap();
 }
 
+void FloatingBall::SetSize(int logical_size) {
+  const int clamped = std::max(40, std::min(96, logical_size));
+  if (clamped == size_logical_) {
+    return;
+  }
+  size_logical_ = clamped;
+  if (!window_) {
+    return;
+  }
+
+  size_px_ = MulDiv(size_logical_, SystemDpi(), 96);
+  if (size_px_ < 24) {
+    size_px_ = 24;
+  }
+  if (bitmap_) {
+    DeleteObject(bitmap_);
+    bitmap_ = nullptr;
+    pixels_ = nullptr;
+  }
+  CreateBitmap();
+  Render();
+
+  RECT rect = {};
+  GetWindowRect(window_, &rect);
+  int x = rect.left;
+  int y = rect.top;
+  ClampToWorkArea(&x, &y);
+  MoveTo(x, y);
+}
+
 void FloatingBall::Hide() {
   if (window_) {
     ShowWindow(window_, SW_HIDE);
@@ -135,7 +164,7 @@ void FloatingBall::CreateWindowIfNeeded() {
   }
 
   const int dpi = SystemDpi();
-  size_px_ = MulDiv(kLogicalSize, dpi, 96);
+  size_px_ = MulDiv(size_logical_, dpi, 96);
   if (size_px_ < 32) {
     size_px_ = 32;
   }

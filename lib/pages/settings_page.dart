@@ -20,6 +20,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late final TextEditingController _pathController;
   late bool _showFloatingBall;
   double _opacity = 1.0;
+  double _size = 64.0;
   DateTime? _startDay1;
   DateTime? _startDay2;
 
@@ -30,6 +31,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _pathController = TextEditingController(text: settings.noteFilePath);
     _showFloatingBall = settings.showFloatingBall;
     _opacity = settings.floatingBallOpacity;
+    _size = settings.floatingBallSize;
     _startDay1 = settings.startDay1;
     _startDay2 = settings.startDay2;
   }
@@ -49,6 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
       AppSettings(
         showFloatingBall: _showFloatingBall,
         floatingBallOpacity: _opacity,
+        floatingBallSize: _size,
         noteFilePath: _pathController.text.trim(),
         startDay1: _startDay1,
         startDay2: _startDay2,
@@ -214,6 +217,38 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? (double value) {
                             setState(() {
                               _opacity = value;
+                            });
+                          }
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Text('悬浮球大小', style: theme.textTheme.bodyMedium),
+                      const Spacer(),
+                      Text(
+                        '${_size.round()}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _size,
+                    min: 40.0,
+                    max: 96.0,
+                    divisions: 14,
+                    label: '${_size.round()}',
+                    onChanged: _showFloatingBall
+                        ? (double value) {
+                            setState(() {
+                              _size = value;
                             });
                           }
                         : null,

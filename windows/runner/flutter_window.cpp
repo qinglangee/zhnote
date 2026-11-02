@@ -2,6 +2,7 @@
 
 #include <flutter/standard_method_codec.h>
 
+#include <cmath>
 #include <optional>
 #include <string>
 #include <variant>
@@ -66,6 +67,22 @@ bool FlutterWindow::OnCreate() {
             }
           }
           FloatingBall::Instance().SetOpacity(opacity);
+          result->Success();
+        } else if (method == "setSize") {
+          double size = 64.0;
+          const flutter::EncodableMap* arguments =
+              std::get_if<flutter::EncodableMap>(call.arguments());
+          if (arguments != nullptr) {
+            auto value =
+                arguments->find(flutter::EncodableValue(std::string("size")));
+            if (value != arguments->end()) {
+              const double* number = std::get_if<double>(&value->second);
+              if (number != nullptr) {
+                size = *number;
+              }
+            }
+          }
+          FloatingBall::Instance().SetSize(static_cast<int>(std::lround(size)));
           result->Success();
         } else {
           result->NotImplemented();

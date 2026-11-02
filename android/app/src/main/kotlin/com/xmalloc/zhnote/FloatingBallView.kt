@@ -20,7 +20,19 @@ class FloatingBallView(context: Context) : View(context) {
     var onDragEnd: ((Int, Int) -> Unit)? = null
 
     private val density = resources.displayMetrics.density
-    val sizePx: Int = (64 * density).toInt()
+    var sizePx: Int = (64 * density).toInt()
+        private set
+
+    /** 更新悬浮球大小（DP，40 - 96）。 */
+    fun updateSize(sizeDp: Int) {
+        val clamped = sizeDp.coerceIn(40, 96)
+        val newSize = (clamped * density).toInt()
+        if (newSize == sizePx) {
+            return
+        }
+        sizePx = newSize
+        requestLayout()
+    }
 
     private val ballPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.rgb(63, 81, 181)

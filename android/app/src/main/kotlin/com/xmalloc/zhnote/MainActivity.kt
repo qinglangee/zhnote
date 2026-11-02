@@ -59,6 +59,12 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     }
 
+                    "setSize" -> {
+                        val size = call.argument<Double>("size")?.toInt() ?: 64
+                        FloatingBallManager.setSize(this, size)
+                        result.success(null)
+                    }
+
                     "hasPermission" -> result.success(FloatingBallManager.hasPermission(this))
 
                     "openPermissionSettings" -> {
