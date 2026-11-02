@@ -24,8 +24,14 @@ class WebDavService {
         settings.webdavUrl.trim().isNotEmpty;
   }
 
-  /// 远端文件名：优先取本地笔记文件的名字，取不到时使用 zhnote.txt。
+  /// 远端文件名：优先使用设置里显式填写的文件名，
+  /// 其次取本地笔记文件的名字，取不到时使用 zhnote.txt。
   String remoteFileName(AppSettings settings) {
+    final String configured = settings.webdavRemoteFileName.trim();
+    if (configured.isNotEmpty) {
+      return configured.split(RegExp(r'[\\/]')).last;
+    }
+
     final String path = settings.noteFilePath.trim();
     if (path.isEmpty) {
       return 'zhnote.txt';
@@ -35,23 +41,22 @@ class WebDavService {
     final Uri? uri = Uri.tryParse(path);
     if (uri != null && (uri.scheme == 'content' || uri.scheme == 'file')) {
       if (uri.pathSegments.isNotEmpty) {
-        name = Uri.decodeComponent(uri.pathSegments.last);
+        // pathSegments 已经是解码后的内容。
+        name = uri.pathSegments.last;
       }
     } else {
       name = path.split(RegExp(r'[\\/]')).last;
     }
 
-    // SAF 的 content URI 会带 documentId 前缀，例如 primary:AA_zhch/notes1.txt
+    // SAF 的 content URI 会带 documentId 前缀，例如 primary:AA_zhch/notes.txt
     if (name.contains('/')) {
       name = name.split('/').last;
     }
     if (name.contains(':')) {
       name = name.split(':').last;
     }
-    if (name.trim().isEmpty || !name.contains('.')) {
-      return 'zhnote.txt';
-    }
-    return name;
+    name = name.trim();
+    return name.isEmpty ? 'zhnote.txt' : name;
   }
 
   /// 远端文件的完整地址。

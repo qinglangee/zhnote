@@ -23,6 +23,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late final TextEditingController _webdavUsernameController;
   late final TextEditingController _webdavPasswordController;
   late final TextEditingController _webdavFolderController;
+  late final TextEditingController _webdavFileNameController;
   late bool _showFloatingBall;
   bool _webdavEnabled = false;
   double _opacity = 1.0;
@@ -41,6 +42,8 @@ class _SettingsPageState extends State<SettingsPage> {
     _webdavPasswordController =
         TextEditingController(text: settings.webdavPassword);
     _webdavFolderController = TextEditingController(text: settings.webdavFolder);
+    _webdavFileNameController =
+        TextEditingController(text: settings.webdavRemoteFileName);
     _showFloatingBall = settings.showFloatingBall;
     _webdavEnabled = settings.webdavEnabled;
     _opacity = settings.floatingBallOpacity;
@@ -56,6 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _webdavUsernameController.dispose();
     _webdavPasswordController.dispose();
     _webdavFolderController.dispose();
+    _webdavFileNameController.dispose();
     super.dispose();
   }
 
@@ -82,6 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
         webdavUsername: _webdavUsernameController.text.trim(),
         webdavPassword: _webdavPasswordController.text,
         webdavFolder: _webdavFolderController.text.trim(),
+        webdavRemoteFileName: _webdavFileNameController.text.trim(),
         startDay1: _startDay1,
         startDay2: _startDay2,
       ),
@@ -426,9 +431,21 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    controller: _webdavFileNameController,
+                    decoration: const InputDecoration(
+                      labelText: '远程文件名',
+                      hintText: '例如 notes.txt，留空则使用本地笔记文件名',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   child: Text(
-                    '同步使用本地笔记文件名；服务器目录不存在时会自动创建。',
+                    '留空时使用本地笔记文件名；服务器目录不存在时会自动创建。',
                     style: theme.textTheme.bodySmall,
                   ),
                 ),

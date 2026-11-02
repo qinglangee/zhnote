@@ -13,6 +13,7 @@ class SettingsService extends ChangeNotifier {
   static const String _keyWebdavUsername = 'webdav_username';
   static const String _keyWebdavPassword = 'webdav_password';
   static const String _keyWebdavFolder = 'webdav_folder';
+  static const String _keyWebdavRemoteFileName = 'webdav_remote_file_name';
   static const String _keyNoteFilePath = 'note_file_path';
   static const String _keyStartDay1 = 'start_day1';
   static const String _keyStartDay2 = 'start_day2';
@@ -32,6 +33,8 @@ class SettingsService extends ChangeNotifier {
       webdavUsername: prefs.getString(_keyWebdavUsername) ?? '',
       webdavPassword: prefs.getString(_keyWebdavPassword) ?? '',
       webdavFolder: prefs.getString(_keyWebdavFolder) ?? '',
+      webdavRemoteFileName:
+          prefs.getString(_keyWebdavRemoteFileName) ?? '',
       noteFilePath: prefs.getString(_keyNoteFilePath) ?? '',
       startDay1: _parseDate(prefs.getString(_keyStartDay1)),
       startDay2: _parseDate(prefs.getString(_keyStartDay2)),
@@ -52,6 +55,8 @@ class SettingsService extends ChangeNotifier {
     await prefs.setString(_keyWebdavUsername, settings.webdavUsername);
     await prefs.setString(_keyWebdavPassword, settings.webdavPassword);
     await prefs.setString(_keyWebdavFolder, settings.webdavFolder);
+    await prefs.setString(
+        _keyWebdavRemoteFileName, settings.webdavRemoteFileName);
     await prefs.setString(_keyNoteFilePath, settings.noteFilePath);
 
     final DateTime? startDay1 = settings.startDay1;

@@ -9,6 +9,7 @@ class AppSettings {
     this.webdavUsername = '',
     this.webdavPassword = '',
     this.webdavFolder = '',
+    this.webdavRemoteFileName = '',
     this.startDay1,
     this.startDay2,
   });
@@ -40,6 +41,9 @@ class AppSettings {
   /// WebDAV 上的文件夹路径（相对服务器地址），可为空。
   final String webdavFolder;
 
+  /// 服务器上的笔记文件名；为空时使用本地笔记文件名。
+  final String webdavRemoteFileName;
+
   /// 练功起始日期，用于计算天数与年数。
   final DateTime? startDay1;
 
@@ -64,6 +68,7 @@ class AppSettings {
     String? webdavUsername,
     String? webdavPassword,
     String? webdavFolder,
+    String? webdavRemoteFileName,
     DateTime? startDay1,
     DateTime? startDay2,
   }) {
@@ -77,6 +82,8 @@ class AppSettings {
       webdavUsername: webdavUsername ?? this.webdavUsername,
       webdavPassword: webdavPassword ?? this.webdavPassword,
       webdavFolder: webdavFolder ?? this.webdavFolder,
+      webdavRemoteFileName:
+          webdavRemoteFileName ?? this.webdavRemoteFileName,
       startDay1: startDay1 ?? this.startDay1,
       startDay2: startDay2 ?? this.startDay2,
     );
