@@ -7,8 +7,10 @@ project(runner LANGUAGES CXX)
 #
 # Any new source files that you add to the application should be added here.
 add_executable(${BINARY_NAME} WIN32
+  "floating_ball.cpp"
   "flutter_window.cpp"
   "main.cpp"
+  "tray_icon.cpp"
   "utils.cpp"
   "win32_window.cpp"
   "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
@@ -19,6 +21,9 @@ add_executable(${BINARY_NAME} WIN32
 # Apply the standard set of build settings. This can be removed for applications
 # that need different build settings.
 apply_standard_settings(${BINARY_NAME})
+
+# 源码含中文注释，强制 MSVC 以 UTF-8 解析，避免按系统代码页(GBK)解析出错。
+target_compile_options(${BINARY_NAME} PRIVATE "/utf-8")
 
 # Add preprocessor definitions for the build version.
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION=\"${FLUTTER_VERSION}\"")

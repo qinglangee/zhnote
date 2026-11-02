@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/app_settings.dart';
+import '../services/floating_ball_service.dart';
 import '../services/note_service.dart';
 import '../services/settings_service.dart';
 import '../utils/date_utils.dart';
@@ -14,6 +16,9 @@ class NotePage extends StatefulWidget {
 }
 
 class _NotePageState extends State<NotePage> {
+  static const MethodChannel _desktopActions =
+      MethodChannel('zhnote/desktop_actions');
+
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final NoteService _noteService = NoteService();
@@ -25,19 +30,34 @@ class _NotePageState extends State<NotePage> {
   void initState() {
     super.initState();
     settingsService.addListener(_onSettingsChanged);
+    _desktopActions.setMethodCallHandler(_handleDesktopAction);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        floatingBallService.setVisible(settingsService.settings.showFloatingBall);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _desktopActions.setMethodCallHandler(null);
     settingsService.removeListener(_onSettingsChanged);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
+  /// 处理 Windows 托盘菜单发起的动作。
+  Future<void> _handleDesktopAction(MethodCall call) async {
+    if (call.method == 'openSettings' && mounted) {
+      await _openSettings();
+    }
+  }
+
   void _onSettingsChanged() {
     if (mounted) {
       setState(() {});
+      floatingBallService.setVisible(settingsService.settings.showFloatingBall);
     }
   }
 

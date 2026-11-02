@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
           children: <Widget>[
             SwitchListTile(
               title: const Text('显示悬浮球'),
-              subtitle: const Text('悬浮球功能将在后续阶段提供'),
+              subtitle: const Text('悬浮在所有窗口之上，可拖动，点击回到笔记页'),
               value: _showFloatingBall,
               onChanged: (bool value) {
                 setState(() {

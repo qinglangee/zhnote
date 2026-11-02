@@ -1,0 +1,3 @@
+- 悬浮球是`windows/runner` 下的原生 Win32 置顶分层窗口（ floating_ball.cpp ）：`WS_EX_TOPMOST` 置顶、`WS_EX_TOOLWINDOW` 不进任务栏/Alt+Tab、`WS_EX_NOACTIVATE` 不抢焦点，抗锯齿圆形，三条白线笔记图标。
+- Dart 通过 MethodChannel`zhnote/floating_ball` 控制显示/隐藏（ floating_ball_service.dart ），入口在 flutter_window.cpp 。
+- 拖动实时移动并限制在屏幕工作区内；松手后位置保存到`%APPDATA%\zhnote\ball_position.txt` ，下次启动沿用
