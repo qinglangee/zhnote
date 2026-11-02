@@ -5,6 +5,7 @@ import '../models/app_settings.dart';
 import '../services/floating_ball_service.dart';
 import '../services/note_service.dart';
 import '../services/settings_service.dart';
+import '../services/webdav_service.dart';
 import '../utils/date_utils.dart';
 import 'settings_page.dart';
 import 'view_notes_page.dart';
@@ -162,20 +163,48 @@ class _NotePageState extends State<NotePage> with WidgetsBindingObserver {
     setState(() {
       _saving = true;
     });
+    final bool syncToWebdav = webDavService.isEnabled(settings);
+    bool savedLocally = false;
     try {
+      if (syncToWebdav) {
+        // 先下载服务器上的最新文件，再在它基础上追加。
+        final String? remote = await webDavService.download(settings);
+        if (remote != null) {
+          await _noteService.writeNoteText(settings, remote);
+        }
+      }
       await _noteService.appendNote(
         date: _selectedDate,
         text: text,
         settings: settings,
       );
+      savedLocally = true;
+      if (syncToWebdav) {
+        final String updated = await _noteService.readNoteText(settings);
+        await webDavService.upload(settings, updated);
+      }
       if (!mounted) {
         return;
       }
       _controller.clear();
       _focusNode.unfocus();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('已保存到 ${dateWithWeekday(_selectedDate)}')),
+        SnackBar(
+          content: Text(
+            syncToWebdav
+                ? '已保存并同步到 WebDAV：${dateWithWeekday(_selectedDate)}'
+                : '已保存到 ${dateWithWeekday(_selectedDate)}',
+          ),
+        ),
       );
+    } on WebDavException catch (error) {
+      if (mounted) {
+        await _showError(
+          savedLocally
+              ? '笔记已保存到本地，但 WebDAV 同步失败：${error.message}'
+              : 'WebDAV 同步失败：${error.message}',
+        );
+      }
     } on NoteSaveException catch (error) {
       if (mounted) {
         await _showError(error.message);

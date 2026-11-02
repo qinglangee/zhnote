@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -18,7 +19,12 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late final TextEditingController _pathController;
+  late final TextEditingController _webdavUrlController;
+  late final TextEditingController _webdavUsernameController;
+  late final TextEditingController _webdavPasswordController;
+  late final TextEditingController _webdavFolderController;
   late bool _showFloatingBall;
+  bool _webdavEnabled = false;
   double _opacity = 1.0;
   double _size = 64.0;
   DateTime? _startDay1;
@@ -29,7 +35,14 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     final AppSettings settings = settingsService.settings;
     _pathController = TextEditingController(text: settings.noteFilePath);
+    _webdavUrlController = TextEditingController(text: settings.webdavUrl);
+    _webdavUsernameController =
+        TextEditingController(text: settings.webdavUsername);
+    _webdavPasswordController =
+        TextEditingController(text: settings.webdavPassword);
+    _webdavFolderController = TextEditingController(text: settings.webdavFolder);
     _showFloatingBall = settings.showFloatingBall;
+    _webdavEnabled = settings.webdavEnabled;
     _opacity = settings.floatingBallOpacity;
     _size = settings.floatingBallSize;
     _startDay1 = settings.startDay1;
@@ -39,10 +52,21 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     _pathController.dispose();
+    _webdavUrlController.dispose();
+    _webdavUsernameController.dispose();
+    _webdavPasswordController.dispose();
+    _webdavFolderController.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
+    if (_webdavEnabled && _webdavUrlController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('启用 WebDAV 同步时必须填写服务器地址')),
+      );
+      return;
+    }
+
     final bool needsOverlayPermission = _showFloatingBall &&
         floatingBallService.isAndroid &&
         !await floatingBallService.hasPermission();
@@ -53,6 +77,11 @@ class _SettingsPageState extends State<SettingsPage> {
         floatingBallOpacity: _opacity,
         floatingBallSize: _size,
         noteFilePath: _pathController.text.trim(),
+        webdavEnabled: _webdavEnabled,
+        webdavUrl: _webdavUrlController.text.trim(),
+        webdavUsername: _webdavUsernameController.text.trim(),
+        webdavPassword: _webdavPasswordController.text,
+        webdavFolder: _webdavFolderController.text.trim(),
         startDay1: _startDay1,
         startDay2: _startDay2,
       ),
@@ -336,6 +365,75 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: theme.textTheme.bodySmall,
               ),
             ),
+            if (Platform.isAndroid) ...<Widget>[
+              const Divider(),
+              SwitchListTile(
+                title: const Text('启用 WebDAV 同步'),
+                subtitle: const Text('保存笔记前先下载服务器上的最新文件，保存后再上传'),
+                value: _webdavEnabled,
+                onChanged: (bool value) {
+                  setState(() {
+                    _webdavEnabled = value;
+                  });
+                },
+              ),
+              if (_webdavEnabled) ...<Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: TextField(
+                    controller: _webdavUrlController,
+                    decoration: const InputDecoration(
+                      labelText: '服务器地址',
+                      hintText: 'https://example.com/dav/',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    controller: _webdavUsernameController,
+                    decoration: const InputDecoration(
+                      labelText: '用户名',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    controller: _webdavPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: '密码',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    controller: _webdavFolderController,
+                    decoration: const InputDecoration(
+                      labelText: '文件夹路径',
+                      hintText: '例如 notes，可为空',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text(
+                    '同步使用本地笔记文件名；服务器目录不存在时会自动创建。',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ],
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

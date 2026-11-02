@@ -66,6 +66,21 @@ class NoteService {
     await file.writeAsString(text, encoding: utf8, flush: true);
   }
 
+  /// 用 [text] 覆盖笔记文件内容（WebDAV 同步时以远端最新内容为准）。
+  Future<void> writeNoteText(AppSettings settings, String text) async {
+    final String path = settings.noteFilePath.trim();
+    if (path.isEmpty) {
+      throw const NoteSaveException('还没有设置笔记文件位置，请先在设置中设置笔记文件位置。');
+    }
+    try {
+      await _writeContent(path, text);
+    } on FileSystemException catch (error) {
+      throw NoteSaveException('写入笔记文件失败：${error.message}');
+    } on PlatformException catch (error) {
+      throw NoteSaveException('写入笔记文件失败：${error.message ?? error.code}');
+    }
+  }
+
   /// 把一条笔记追加到 [date] 对应的日期块中。
   ///
   /// 若日期块不存在，则新建一个完整的日期块，并按日期顺序插入到已有块之间；
