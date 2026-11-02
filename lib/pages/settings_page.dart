@@ -19,6 +19,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   late final TextEditingController _pathController;
   late bool _showFloatingBall;
+  double _opacity = 1.0;
   DateTime? _startDay1;
   DateTime? _startDay2;
 
@@ -28,6 +29,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final AppSettings settings = settingsService.settings;
     _pathController = TextEditingController(text: settings.noteFilePath);
     _showFloatingBall = settings.showFloatingBall;
+    _opacity = settings.floatingBallOpacity;
     _startDay1 = settings.startDay1;
     _startDay2 = settings.startDay2;
   }
@@ -46,6 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await settingsService.save(
       AppSettings(
         showFloatingBall: _showFloatingBall,
+        floatingBallOpacity: _opacity,
         noteFilePath: _pathController.text.trim(),
         startDay1: _startDay1,
         startDay2: _startDay2,
@@ -185,6 +188,38 @@ class _SettingsPageState extends State<SettingsPage> {
                   _showFloatingBall = value;
                 });
               },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Text('悬浮球透明度', style: theme.textTheme.bodyMedium),
+                      const Spacer(),
+                      Text(
+                        '${(_opacity * 100).round()}%',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _opacity,
+                    min: 0.3,
+                    max: 1.0,
+                    divisions: 14,
+                    label: '${(_opacity * 100).round()}%',
+                    onChanged: _showFloatingBall
+                        ? (double value) {
+                            setState(() {
+                              _opacity = value;
+                            });
+                          }
+                        : null,
+                  ),
+                ],
+              ),
             ),
             const Divider(),
             Padding(

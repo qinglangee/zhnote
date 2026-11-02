@@ -60,6 +60,24 @@ class FloatingBallService {
       return false;
     }
   }
+
+  /// 设置悬浮球不透明度（0.3 - 1.0）。
+  Future<void> setOpacity(double opacity) async {
+    if (!_supported) {
+      return;
+    }
+    final double value = opacity.clamp(0.3, 1.0).toDouble();
+    try {
+      await _channel.invokeMethod<void>(
+        'setOpacity',
+        <String, double>{'opacity': value},
+      );
+    } on PlatformException catch (error) {
+      debugPrint('设置悬浮球透明度失败：${error.message}');
+    } on MissingPluginException {
+      debugPrint('当前平台未实现悬浮球透明度');
+    }
+  }
 }
 
 final FloatingBallService floatingBallService = FloatingBallService();

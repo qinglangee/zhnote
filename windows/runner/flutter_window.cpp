@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <string>
+#include <variant>
 
 #include "floating_ball.h"
 #include "flutter/generated_plugin_registrant.h"
@@ -50,6 +51,22 @@ bool FlutterWindow::OnCreate() {
         } else if (method == "isVisible") {
           result->Success(
               flutter::EncodableValue(FloatingBall::Instance().IsVisible()));
+        } else if (method == "setOpacity") {
+          double opacity = 1.0;
+          const flutter::EncodableMap* arguments =
+              std::get_if<flutter::EncodableMap>(call.arguments());
+          if (arguments != nullptr) {
+            auto value =
+                arguments->find(flutter::EncodableValue(std::string("opacity")));
+            if (value != arguments->end()) {
+              const double* number = std::get_if<double>(&value->second);
+              if (number != nullptr) {
+                opacity = *number;
+              }
+            }
+          }
+          FloatingBall::Instance().SetOpacity(opacity);
+          result->Success();
         } else {
           result->NotImplemented();
         }

@@ -53,6 +53,12 @@ class MainActivity : FlutterActivity() {
 
                     "isVisible" -> result.success(FloatingBallManager.isVisible())
 
+                    "setOpacity" -> {
+                        val opacity = call.argument<Double>("opacity")?.toFloat() ?: 1.0f
+                        FloatingBallManager.setOpacity(this, opacity)
+                        result.success(null)
+                    }
+
                     "hasPermission" -> result.success(FloatingBallManager.hasPermission(this))
 
                     "openPermissionSettings" -> {

@@ -73,10 +73,20 @@ void FloatingBall::Show(HWND main_window, ClickHandler on_click) {
   if (!window_) {
     return;
   }
+  Render();
   ApplyBitmap();
   ShowWindow(window_, SW_SHOWNA);
   SetWindowPos(window_, HWND_TOPMOST, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+}
+
+void FloatingBall::SetOpacity(double opacity) {
+  opacity_ = Clamp01(opacity);
+  if (!window_ || !bitmap_) {
+    return;
+  }
+  Render();
+  ApplyBitmap();
 }
 
 void FloatingBall::Hide() {
@@ -211,14 +221,15 @@ void FloatingBall::Render() {
         blue += (255.0 - blue) * bar;
       }
 
+      const double ball_alpha = alpha * opacity_;
       const uint32_t alpha_byte =
-          static_cast<uint32_t>(std::lround(alpha * 255.0));
+          static_cast<uint32_t>(std::lround(ball_alpha * 255.0));
       const uint32_t red_byte =
-          static_cast<uint32_t>(std::lround(alpha * red));
+          static_cast<uint32_t>(std::lround(ball_alpha * red));
       const uint32_t green_byte =
-          static_cast<uint32_t>(std::lround(alpha * green));
+          static_cast<uint32_t>(std::lround(ball_alpha * green));
       const uint32_t blue_byte =
-          static_cast<uint32_t>(std::lround(alpha * blue));
+          static_cast<uint32_t>(std::lround(ball_alpha * blue));
 
       // UpdateLayeredWindow 需要预乘 alpha 的 BGRA 数据。
       pixels_[y * size + x] =

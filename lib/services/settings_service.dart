@@ -6,6 +6,7 @@ import '../utils/date_utils.dart';
 
 class SettingsService extends ChangeNotifier {
   static const String _keyShowFloatingBall = 'show_floating_ball';
+  static const String _keyFloatingBallOpacity = 'floating_ball_opacity';
   static const String _keyNoteFilePath = 'note_file_path';
   static const String _keyStartDay1 = 'start_day1';
   static const String _keyStartDay2 = 'start_day2';
@@ -18,6 +19,7 @@ class SettingsService extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     _settings = AppSettings(
       showFloatingBall: prefs.getBool(_keyShowFloatingBall) ?? true,
+      floatingBallOpacity: prefs.getDouble(_keyFloatingBallOpacity) ?? 1.0,
       noteFilePath: prefs.getString(_keyNoteFilePath) ?? '',
       startDay1: _parseDate(prefs.getString(_keyStartDay1)),
       startDay2: _parseDate(prefs.getString(_keyStartDay2)),
@@ -31,6 +33,7 @@ class SettingsService extends ChangeNotifier {
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyShowFloatingBall, settings.showFloatingBall);
+    await prefs.setDouble(_keyFloatingBallOpacity, settings.floatingBallOpacity);
     await prefs.setString(_keyNoteFilePath, settings.noteFilePath);
 
     final DateTime? startDay1 = settings.startDay1;

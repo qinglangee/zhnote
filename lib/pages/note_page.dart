@@ -35,7 +35,7 @@ class _NotePageState extends State<NotePage> with WidgetsBindingObserver {
     _desktopActions.setMethodCallHandler(_handleDesktopAction);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        floatingBallService.setVisible(settingsService.settings.showFloatingBall);
+        _applyFloatingBallSettings();
       }
     });
   }
@@ -54,8 +54,15 @@ class _NotePageState extends State<NotePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // 从系统悬浮窗权限页返回后，按设置重新应用悬浮球状态。
-      floatingBallService.setVisible(settingsService.settings.showFloatingBall);
+      _applyFloatingBallSettings();
     }
+  }
+
+  /// 按当前设置应用悬浮球的显示状态与透明度。
+  void _applyFloatingBallSettings() {
+    final AppSettings settings = settingsService.settings;
+    floatingBallService.setVisible(settings.showFloatingBall);
+    floatingBallService.setOpacity(settings.floatingBallOpacity);
   }
 
   /// 处理 Windows 托盘菜单与悬浮球点击发起的动作。
@@ -78,7 +85,7 @@ class _NotePageState extends State<NotePage> with WidgetsBindingObserver {
   void _onSettingsChanged() {
     if (mounted) {
       setState(() {});
-      floatingBallService.setVisible(settingsService.settings.showFloatingBall);
+      _applyFloatingBallSettings();
     }
   }
 

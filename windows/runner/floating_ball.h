@@ -21,6 +21,9 @@ class FloatingBall {
 
   bool IsVisible() const;
 
+  // 设置悬浮球整体不透明度（0.0 - 1.0），立即生效。
+  void SetOpacity(double opacity);
+
   // 应用退出时释放窗口与位图资源。
   void Destroy();
 
@@ -53,6 +56,7 @@ class FloatingBall {
   HWND main_window_ = nullptr;
   ClickHandler on_click_;
   int size_px_ = 0;
+  double opacity_ = 1.0;
   HBITMAP bitmap_ = nullptr;
   uint32_t* pixels_ = nullptr;
 

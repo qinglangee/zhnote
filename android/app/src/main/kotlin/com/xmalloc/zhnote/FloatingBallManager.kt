@@ -16,6 +16,7 @@ object FloatingBallManager {
     private const val PREFS_NAME = "zhnote_floating_ball"
     private const val KEY_X = "position_x"
     private const val KEY_Y = "position_y"
+    private const val KEY_OPACITY = "opacity"
     private const val DEFAULT_MARGIN_DP = 16
 
     private var ballView: FloatingBallView? = null
@@ -62,6 +63,7 @@ object FloatingBallManager {
             gravity = Gravity.TOP or Gravity.START
             this.x = x
             this.y = y
+            alpha = prefs.getFloat(KEY_OPACITY, 1.0f).coerceIn(0.3f, 1.0f)
         }
 
         view.onClick = { openApp(appContext) }
@@ -91,6 +93,26 @@ object FloatingBallManager {
     }
 
     fun isVisible(): Boolean = ballView != null
+
+    fun setOpacity(context: Context, opacity: Float) {
+        val appContext = context.applicationContext
+        val value = opacity.coerceIn(0.3f, 1.0f)
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putFloat(KEY_OPACITY, value)
+            .apply()
+
+        val view = ballView ?: return
+        val params = view.layoutParams as? WindowManager.LayoutParams ?: return
+        params.alpha = value
+        val windowManager =
+            view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        try {
+            windowManager.updateViewLayout(view, params)
+        } catch (error: Exception) {
+            // 窗口已被移除时忽略。
+        }
+    }
 
     private fun openApp(context: Context) {
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
