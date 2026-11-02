@@ -16,7 +16,7 @@ class NotePage extends StatefulWidget {
   State<NotePage> createState() => _NotePageState();
 }
 
-class _NotePageState extends State<NotePage> {
+class _NotePageState extends State<NotePage> with WidgetsBindingObserver {
   static const MethodChannel _desktopActions =
       MethodChannel('zhnote/desktop_actions');
 
@@ -30,6 +30,7 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     settingsService.addListener(_onSettingsChanged);
     _desktopActions.setMethodCallHandler(_handleDesktopAction);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -41,11 +42,20 @@ class _NotePageState extends State<NotePage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _desktopActions.setMethodCallHandler(null);
     settingsService.removeListener(_onSettingsChanged);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // 从系统悬浮窗权限页返回后，按设置重新应用悬浮球状态。
+      floatingBallService.setVisible(settingsService.settings.showFloatingBall);
+    }
   }
 
   /// 处理 Windows 托盘菜单与悬浮球点击发起的动作。
@@ -92,6 +102,20 @@ class _NotePageState extends State<NotePage> {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (BuildContext context) => const SettingsPage()),
     );
+  }
+
+  void _resetDateToToday() {
+    final DateTime now = DateTime.now();
+    setState(() {
+      _selectedDate = DateTime(now.year, now.month, now.day);
+    });
+  }
+
+  bool get _isToday {
+    final DateTime now = DateTime.now();
+    return _selectedDate.year == now.year &&
+        _selectedDate.month == now.month &&
+        _selectedDate.day == now.day;
   }
 
   Future<void> _openViewNotes() async {
@@ -291,6 +315,16 @@ class _NotePageState extends State<NotePage> {
             Text(
               dateWithWeekday(_selectedDate),
               style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(width: 4),
+            TextButton(
+              onPressed: _resetDateToToday,
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, 32),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(_isToday ? '今天' : '回到今天'),
             ),
             const Spacer(),
             Text(

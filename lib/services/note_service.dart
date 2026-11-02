@@ -2,8 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
 import '../models/app_settings.dart';
 import '../utils/date_utils.dart';
+import 'file_access_service.dart';
 
 /// 保存笔记时可以直接展示给用户的错误。
 class NoteSaveException implements Exception {
@@ -26,17 +30,40 @@ class NoteService {
     if (path.isEmpty) {
       throw const NoteSaveException('还没有设置笔记文件位置，请先在设置中设置笔记文件位置。');
     }
-    final File file = File(path);
-    if (!await file.exists()) {
-      return '';
-    }
     try {
-      return await file.readAsString(encoding: utf8);
+      return await _readContent(path);
     } on FileSystemException catch (error) {
       throw NoteSaveException('读取笔记文件失败：${error.message}');
+    } on PlatformException catch (error) {
+      throw NoteSaveException('读取笔记文件失败：${error.message ?? error.code}');
     } on FormatException {
       throw const NoteSaveException('笔记文件不是有效的 UTF-8 文本。');
     }
+  }
+
+  /// Android 上笔记文件通过 SAF content URI 读写，其它平台使用文件路径。
+  bool get _useSaf => defaultTargetPlatform == TargetPlatform.android;
+
+  Future<String> _readContent(String location) async {
+    if (_useSaf) {
+      final String? text = await fileAccessService.readText(location);
+      return text ?? '';
+    }
+    final File file = File(location);
+    if (!await file.exists()) {
+      return '';
+    }
+    return file.readAsString(encoding: utf8);
+  }
+
+  Future<void> _writeContent(String location, String text) async {
+    if (_useSaf) {
+      await fileAccessService.writeText(location, text);
+      return;
+    }
+    final File file = File(location);
+    await file.parent.create(recursive: true);
+    await file.writeAsString(text, encoding: utf8, flush: true);
   }
 
   /// 把一条笔记追加到 [date] 对应的日期块中。
@@ -65,16 +92,15 @@ class NoteService {
       throw const NoteSaveException('笔记内容不能为空。');
     }
 
-    final File file = File(path);
     String original = '';
-    if (await file.exists()) {
-      try {
-        original = await file.readAsString(encoding: utf8);
-      } on FileSystemException catch (error) {
-        throw NoteSaveException('读取笔记文件失败：${error.message}');
-      } on FormatException {
-        throw const NoteSaveException('笔记文件不是有效的 UTF-8 文本。');
-      }
+    try {
+      original = await _readContent(path);
+    } on FileSystemException catch (error) {
+      throw NoteSaveException('读取笔记文件失败：${error.message}');
+    } on PlatformException catch (error) {
+      throw NoteSaveException('读取笔记文件失败：${error.message ?? error.code}');
+    } on FormatException {
+      throw const NoteSaveException('笔记文件不是有效的 UTF-8 文本。');
     }
 
     final String eol = original.contains('\r\n') ? '\r\n' : '\n';
@@ -121,10 +147,11 @@ class NoteService {
     }
 
     try {
-      await file.parent.create(recursive: true);
-      await file.writeAsString(result, encoding: utf8, flush: true);
+      await _writeContent(path, result);
     } on FileSystemException catch (error) {
       throw NoteSaveException('写入笔记文件失败：${error.message}');
+    } on PlatformException catch (error) {
+      throw NoteSaveException('写入笔记文件失败：${error.message ?? error.code}');
     }
   }
 

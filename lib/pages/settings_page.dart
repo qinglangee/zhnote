@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../models/app_settings.dart';
+import '../services/file_access_service.dart';
+import '../services/floating_ball_service.dart';
 import '../services/settings_service.dart';
 import '../utils/date_utils.dart';
 
@@ -37,6 +39,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _save() async {
+    final bool needsOverlayPermission = _showFloatingBall &&
+        floatingBallService.isAndroid &&
+        !await floatingBallService.hasPermission();
+
     await settingsService.save(
       AppSettings(
         showFloatingBall: _showFloatingBall,
@@ -51,10 +57,53 @@ class _SettingsPageState extends State<SettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('设置已保存')),
     );
+    if (needsOverlayPermission) {
+      await _promptOverlayPermission();
+      if (!mounted) {
+        return;
+      }
+    }
     Navigator.of(context).pop();
   }
 
+  Future<void> _promptOverlayPermission() async {
+    final bool? go = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('需要悬浮窗权限'),
+          content: const Text(
+            '显示悬浮球需要“悬浮在其他应用之上”的权限，请在系统设置中允许 zhnote 使用该权限。',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('稍后'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('去授权'),
+            ),
+          ],
+        );
+      },
+    );
+    if (go == true) {
+      await floatingBallService.openPermissionSettings();
+    }
+  }
+
   Future<void> _pickExistingFile() async {
+    if (fileAccessService.isAndroid) {
+      final String? uri = await fileAccessService.pickFile();
+      if (uri == null || !mounted) {
+        return;
+      }
+      setState(() {
+        _pathController.text = uri;
+      });
+      return;
+    }
     final PlatformFile? file = await FilePicker.pickFile(
       dialogTitle: '选择笔记文件',
       type: FileType.custom,
@@ -70,6 +119,16 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _createNewFile() async {
+    if (fileAccessService.isAndroid) {
+      final String? uri = await fileAccessService.createFile();
+      if (uri == null || !mounted) {
+        return;
+      }
+      setState(() {
+        _pathController.text = uri;
+      });
+      return;
+    }
     final Uri? uri = await FilePicker.saveFile(
       dialogTitle: '选择笔记文件保存位置',
       fileName: 'notes.txt',
@@ -136,9 +195,11 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: TextField(
                 controller: _pathController,
-                decoration: const InputDecoration(
-                  hintText: r'例如 D:\notes\notes.txt',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: fileAccessService.isAndroid
+                      ? '通过下方按钮选择 txt 文件'
+                      : r'例如 D:\notes\notes.txt',
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 maxLines: 1,
