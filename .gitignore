@@ -53,10 +53,5 @@ android/app/bin/
 web/icons/*.png
 macos/Runner/Assets.xcassets/**/*.png
 ios/Runner/Assets.xcassets/**/*.png
-android/app/src/main/res/**/*.png
-# 如果要把屏蔽的放开一个目录
-!android/app/src/main/res/mipmap-anydpi/
-!android/app/src/main/res/mipmap-anydpi/*.png
-!android/app/src/main/res/mipmap-anydpi/**/*.png
 # keys
 keys/jianguoyun_key.properties
